@@ -1,0 +1,65 @@
+services:
+  nats:
+    image: nats:2.10-alpine
+    command: "-js -m 8222"
+    networks:
+      default:
+        aliases:
+          - nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - nats-data:/data
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8222/healthz" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: filestorage
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "app" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  nats-cli:
+    image: natsio/nats-box:latest
+    entrypoint: /bin/sh
+    stdin_open: true
+    tty: true
+    environment:
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      nats:
+        condition: service_healthy
+  # endpointer:
+  #   build:
+  #     context: ./Endpointer.Json.Remapping
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5134:5134"
+  #     - "7022:7022"
+  #   volumes:
+  #     - ./Endpointer.Json.Remapping:/app
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ASPNETCORE_URLS=http://0.0.0.0:5134;https://0.0.0.0:7022
+  #   depends_on:
+  #     nats:
+  #       condition: service_healthy
+
+volumes:
+  nats-data:

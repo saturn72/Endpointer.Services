@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package file_storage;
+
+option csharp_namespace = "Endpointer.FileStorage.Grpc";
+
+message UploadChunk {
+  string path = 1;
+  string file_name = 2;
+  string content_type = 3;
+  bytes data = 4;
+}
+
+message UploadResponse {
+  string path = 1;
+  bool success = 2;
+}
+
+message GetFileRequest {
+  string path = 1;
+}
+
+message FileChunk {
+  bytes data = 1;
+  string content_type = 2;
+}
+
+message ListFilesRequest {
+  string prefix = 1;
+}
+
+message FileInfo {
+  string path = 1;
+  string file_name = 2;
+  string content_type = 3;
+  string created_at = 4;
+}
+
+message ListResponse {
+  repeated FileInfo files = 1;
+}
+
+service FileStorage {
+  rpc UploadFile(stream UploadChunk) returns (UploadResponse);
+  rpc GetFile(GetFileRequest) returns (stream FileChunk);
+  rpc ListFiles(ListFilesRequest) returns (ListResponse);
+}

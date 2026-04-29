@@ -1,0 +1,6 @@
+@Json.Remapping_HostAddress = http://localhost:5134
+
+GET {{Json.Remapping_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
