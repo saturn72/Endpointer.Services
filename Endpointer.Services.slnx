@@ -1,4 +1,3 @@
 <Solution>
   <Project Path="Endpointer.Json.Remapping/Endpointer.Json.Remapping.csproj" />
-  <Project Path="Endpointer.FileStorage.DbMigrator/Endpointer.FileStorage.DbMigrator.csproj" />
 </Solution>

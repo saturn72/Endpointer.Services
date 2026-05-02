@@ -35,7 +35,7 @@ public class NatsConfigurar
 
         // 3. Register JS Context and Worker
         services.AddSingleton(sp => sp.GetRequiredService<INatsConnection>().CreateJetStreamContext());
-        services.AddHostedService<NatsPullingBackgroundService>();
+        services.AddHostedService<JsonMappingPullingBackgroundService>();
     }
 
     public async Task ConfigureAppAsync(WebApplication app)

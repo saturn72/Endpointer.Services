@@ -15,4 +15,7 @@ public class NatsOptions
     public required string Url { get; init; }
     [Required, RegularExpression(@"^[a-zA-Z0-9_-]+$", ErrorMessage = "Stream name must be alphanumeric with optional dashes/underscores")]
     public string JsonMappingStreamName { get; init; } = "json_mapping";
+
+    [Range(1, 250, ErrorMessage = "MaxConcurrentMessages must be between 1 and 250")]
+    public int MaxConcurrentMessages { get; init; } = 100;
 }

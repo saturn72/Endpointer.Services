@@ -1,0 +1,32 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach: json-remapping container",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:pickRemoteProcess}",
+      "justMyCode": false,
+      "requireExactSource": false,
+      "pipeTransport": {
+        "pipeProgram": "docker",
+        "pipeArgs": [
+          "compose",
+          "exec",
+          "-T",
+          "json-remapping"
+        ],
+        "debuggerPath": "/vsdbg/vsdbg",
+        "pipeCwd": "${workspaceFolder}",
+        "quoteArgs": false,
+        "pipeEnv": {
+          "MSYS_NO_PATHCONV": "1",
+          "MSYS2_ARG_CONV_EXCL": "*"
+        }
+      },
+      "sourceFileMap": {
+        "/app": "${workspaceFolder}/Endpointer.Json.Remapping"
+      }
+    }
+  ]
+}

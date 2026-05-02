@@ -18,22 +18,48 @@ services:
       retries: 10
       start_period: 5s
 
-  postgres:
-    image: postgres:16
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
     ports:
-      - "5432:5432"
+      - "9000:9000"
+      - "9001:9001"
     environment:
-      POSTGRES_DB: filestorage
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: secret
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - minio-data:/data
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "app" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
       interval: 5s
       timeout: 3s
       retries: 10
       start_period: 5s
+
+  json-remapping:
+    build:
+      context: ./Endpointer.Json.Remapping
+    command: [ "sh", "-c", "dotnet restore && dotnet build --configuration Debug --no-restore 2>&1 | tail -1 && dotnet /app/bin/Debug/net10.0/Endpointer.Json.Remapping.dll --urls=http://0.0.0.0:5134" ]
+    ports:
+      - "5134:5134"
+    volumes:
+      - ./Endpointer.Json.Remapping:/app
+      - ./Endpointer.Json.Remapping/bin:/app/bin
+      - ./Endpointer.Json.Remapping/obj:/app/obj
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DOTNET_USE_POLLING_FILE_WATCHER=1 # needed for file watching inside Docker
+      - nats__Url=nats://nats:4222
+      - s3_1__ServiceURL=http://minio:9000
+      - s3_1__ForcePathStyle=true
+      - s3_1__AccessKey=minioadmin
+      - s3_1__SecretKey=minioadmin
+      - s3_1__BucketName=to-process
+    depends_on:
+      nats:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
 
   nats-cli:
     image: natsio/nats-box:latest
@@ -45,21 +71,9 @@ services:
     depends_on:
       nats:
         condition: service_healthy
-  # endpointer:
-  #   build:
-  #     context: ./Endpointer.Json.Remapping
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "5134:5134"
-  #     - "7022:7022"
-  #   volumes:
-  #     - ./Endpointer.Json.Remapping:/app
-  #   environment:
-  #     - ASPNETCORE_ENVIRONMENT=Development
-  #     - ASPNETCORE_URLS=http://0.0.0.0:5134;https://0.0.0.0:7022
-  #   depends_on:
-  #     nats:
-  #       condition: service_healthy
 
 volumes:
   nats-data:
+  minio-data:
+  json-remapping-bin:
+  json-remapping-obj:
