@@ -35,7 +35,7 @@ public class JsonMappingPullingBackgroundService : BackgroundService
             _logger.LogInformation("Creating consumer with name: '{ConsumerName}'", consumerName);
 
             var consumer = await _js.CreateOrUpdateConsumerAsync(_opt.JsonMappingStreamName,
-                new ConsumeConfig(consumerName)
+                new ConsumerConfig(consumerName)
                 {
                     DeliverPolicy = ConsumerConfigDeliverPolicy.All,
                 }, stoppingToken);

@@ -39,7 +39,7 @@ services:
   json-remapping:
     build:
       context: ./Endpointer.Json.Remapping
-    command: [ "sh", "-c", "dotnet restore && dotnet build --configuration Debug --no-restore 2>&1 | tail -1 && dotnet /app/bin/Debug/net10.0/Endpointer.Json.Remapping.dll --urls=http://0.0.0.0:5134" ]
+    command: [ "sh", "-c", "dotnet restore && dotnet build --configuration Debug --no-restore && dotnet /app/bin/Debug/net10.0/Endpointer.Json.Remapping.dll --urls=http://0.0.0.0:5134" ]
     ports:
       - "5134:5134"
     volumes:
